@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import Stats from 'stats.js';
 import './index.css';
 import threeOrbitControls from './utils/OrbitControls';
+import TweenMax from 'gsap';
 
 // attach orbit controls to THREE
 const OrbitControls = threeOrbitControls(THREE);
@@ -35,8 +36,8 @@ camera.position.set(-15, 30, 95);
 const controls = new OrbitControls(camera, renderer.domElement);
 
 // axis helper
-// const axisHelper = new THREE.AxisHelper(100);
-// scene.add(axisHelper);
+const axisHelper = new THREE.AxisHelper(100);
+scene.add(axisHelper);
 
 //Lumiere ambiante
 const light = new THREE.AmbientLight(0x888888);
@@ -69,38 +70,38 @@ scene.add(spotLight2);
 
 //Materiaux
 const materialTable = new THREE.MeshPhongMaterial({
-    emissive: 0x000000,
-    specular: 0x888888,
-    color: 0x3CB371,
-    side: THREE.DoubleSide,
+	emissive: 0x000000,
+	specular: 0x888888,
+	color: 0x3CB371,
+	side: THREE.DoubleSide,
 });
 
 const materialVerreExt = new THREE.MeshPhongMaterial({
-    emissive: 0x000000,
-    specular: 0x888888,
-    color: 0xCF0A1D,
-    side: THREE.DoubleSide,
+	emissive: 0x000000,
+	specular: 0x888888,
+	color: 0xCF0A1D,
+	side: THREE.DoubleSide,
 });
 
 const materialBalle = new THREE.MeshPhongMaterial({
-    emissive: 0x000000,
-    specular: 0x888888,
-    color: 0xFFFFFF,
-    side: THREE.DoubleSide,
+	emissive: 0x000000,
+	specular: 0x888888,
+	color: 0xFFFFFF,
+	side: THREE.DoubleSide,
 });
 
 const materialWhite = new THREE.MeshPhongMaterial({
-    emissive: 0x000000,
-    specular: 0x888888,
-    color: 0xFFFFFF,
-    side: THREE.DoubleSide,
+	emissive: 0x000000,
+	specular: 0x888888,
+	color: 0xFFFFFF,
+	side: THREE.DoubleSide,
 });
 
 const materialEau = new THREE.MeshPhongMaterial({
-    emissive: 0x000000,
-    specular: 0x888888,
-    color: 0x87CEFA,
-    side: THREE.DoubleSide,
+	emissive: 0x000000,
+	specular: 0x888888,
+	color: 0x87CEFA,
+	side: THREE.DoubleSide,
 });
 
 
@@ -184,9 +185,29 @@ scene.add(verres);
 scene.add(balles);
 
 
+function trajectoire(angle, speed){
+	TweenMax.to(balle.position, 0.9, {
+		x: angle,
+		z: `-=${speed}`,
+	});
+	TweenMax.to(balle.position, 0.6, {
+		y: '3',
+		ease: Power2.easeIn,
+	}).delay(0.3);
+}
 
+function descente(){
+	balle.position.y >= 1.5 ? balle.position.set(balle.position.x, balle.position.y-0.2, balle.position.z-0.2) : null ;
+}
+
+let animation=true;
 const animate = timestamp => {
+
 	stats.begin();
+	if (animation===true) trajectoire(0,120);
+	animation=false;
+
+
 	renderer.render(scene, camera);
 	stats.end();
 	requestAnimationFrame(animate);
