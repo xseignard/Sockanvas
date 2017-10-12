@@ -7,5 +7,11 @@ body {
 }
 
 * {
-    background: yellow;
+    background: brown;
+    font-family: Fira code medium, serif;
+    color: white;
+}
+
+h1 {
+    text-align: center;
 }
