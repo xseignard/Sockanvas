@@ -2,14 +2,14 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
-const plugins = [new HtmlWebpackPlugin({template: 'src/front/index.html'})];
+const plugins = [new HtmlWebpackPlugin({template: 'src/three/index.html'})];
 
 if (process.env.NODE_ENV === 'production') {
     plugins.push(new UglifyJSPlugin());
 }
 
 module.exports = {
-    entry: './src/front/main.js',
+    entry: './src/three/index.js',
     devtool: "eval-source-map",
     output: {
         filename: 'bundle.js',
@@ -31,7 +31,7 @@ module.exports = {
     },
     plugins,
     devServer: {
-        host: '0.0.0.0',
+        // host: '0.0.0.0',
         port: 1337,
     }
 };
