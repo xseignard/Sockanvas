@@ -1,8 +1,9 @@
-require('./main.css');
+require('./styles/main.scss');
 
 import io from 'socket.io-client';
 
-const socket = io('http://192.168.0.11:1337');
+// const socket = io('http://192.168.0.11:1337'); //home
+const socket = io('http://192.168.1.27:1337');
 
 socket.on('connect', (client) => {
     let type = '';
@@ -12,20 +13,11 @@ socket.on('connect', (client) => {
         type = 'desktop';
     }
     socket.emit('clientConnect', {id: socket.id, type: type});
-    // socket.emit('messageToMaster');
 });
 
-
 /*
-* Fonction de débug pour afficher les caractéristiques de l'utilisateur
+* Debug to display informations about a client / clients
 */
 socket.on('displayClientInfo', (clientDebug) => {
     console.log(clientDebug);
-});
-
-/*
-* Fonction d'avertissement empechant le socket de particper au jeu
-* */
-socket.on('clientCantPlay', () => {
-    alert('Vous n\'etes ni le premier Desktop, ni un mobile');
 });

@@ -1,8 +1,8 @@
 const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+// const HtmlWebpackPlugin = require('html-webpack-plugin');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
-const plugins = [new HtmlWebpackPlugin({template: 'src/front/index.html'})];
+const plugins = [];
 
 if (process.env.NODE_ENV === 'production') {
     plugins.push(new UglifyJSPlugin());
@@ -18,20 +18,27 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.css$/,
-                use: ['style-loader', 'css-loader'],
+                test: /\.scss$/,
+                use: [{
+                    loader: "style-loader" // creates style nodes from JS strings
+                }, {
+                    loader: "css-loader" // translates CSS into CommonJS
+                }, {
+                    loader: "sass-loader" // compiles Sass to CSS
+                }]
             },
             {
                 test: /\.(png|svg|jpg|gif)$/,
                 use: [
                     'file-loader'
                 ]
-            }
+            },
         ]
     },
     plugins,
     devServer: {
         host: '0.0.0.0',
+        // hot: true,
         port: 4000,
     }
 };

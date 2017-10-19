@@ -1,23 +1,49 @@
+const path = require('path');
+
 // Express Server
 const express = require('express');
 const cors = require('cors');
 const app = express();
+app.use(cors());
+app.use(express.static('dist'));
 const server = require('http').Server(app);
+
+// Socket io
 const io = require('socket.io')(server);
 server.listen(1337); //Server
 
-app.use(cors());
-app.use(express.static('dist'));
+// Twig
+const Twig = require('twig');
+app.set("twig options", {
+    strict_variables: false
+});
 
-//Code server
+app.get('/', (req, res) => {
+    const ua = req.headers['user-agent'];
+    let device = /mobile/i.test(ua);
+
+    if (device === true && device !== null) {
+        res.render('device.html.twig', {});
+    } else if (device === false && device !== null) {
+        res.render('desktop.html.twig', {});
+    }
+});
+
+app.get('/waiting', (req, res) => {
+    res.render('waiting.html.twig', {
+        type: currentclient.type
+    });
+});
+
+
 let clients = [];
 let currentclient = {};
 io.on('connection', socket => {
     let DesktopExist = false;
 
     socket.on('clientConnect', (client) => {
-
         let DeviceCount = 0;
+
         clients.forEach((e) => {
             if (e.type === 'desktop')
                 DesktopExist = true;
@@ -33,6 +59,7 @@ io.on('connection', socket => {
                 rooms: getRoomsByClient(client.id)
             };
             clients.push(currentclient);
+            socket.emit('displayClientInfo', clients);
         } else if (client.type === 'device' && DeviceCount < 2) {
             socket.join('devices');
             currentclient = {
@@ -42,10 +69,10 @@ io.on('connection', socket => {
                 rooms: getRoomsByClient(client.id)
             };
             clients.push(currentclient);
+            socket.emit('displayClientInfo', currentclient);
         } else {
-            socket.emit('clientCantPlay');
+            
         }
-        socket.emit('displayClientInfo', clients)
     });
 
     socket.on('disconnect', () => {
@@ -55,11 +82,6 @@ io.on('connection', socket => {
             }
         }
     })
-
-    // socket.on('messageToMaster', () => {
-    // console.log(users);
-    // io.to('master').emit('messageToMaster', 'test');
-    // });
 
 });
 
