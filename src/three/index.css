@@ -6,7 +6,6 @@ body {margin: 0;padding: 0;}
     width:fit-content;
     width:-moz-fit-content;
     text-align: center;
-    margin-top: 20px;
     background-color: #3CB371;
     padding:10px;
     border-radius:5px;
@@ -14,21 +13,35 @@ body {margin: 0;padding: 0;}
 }
 
 .j1 {
+    margin-top: 20px;
     left: 20px;
 }
 
 .j2 {
     right: 20px;
+    margin-top: 20px;
 }
 
-.rebours {
+.indicationJ1 {
+    margin-top: 140px;
+    left: 20px;
+}
+
+.indicationJ2 {
+    right: 20px;
+    margin-top: 140px;
+}
+
+.resultat {
+    display: none;
+    margin-top: 20px;
     left: 0;
     right: 0;
     margin-left: auto;
     margin-right: auto;
 }
 
-h4{ margin-bottom: 0;}
+h4{ margin: 0;}
 h2,h3{display: inline-block; margin-top: 0.5em;margin-bottom: 0.5em;}
 
 
@@ -67,3 +80,5 @@ h2,h3{display: inline-block; margin-top: 0.5em;margin-bottom: 0.5em;}
     text-decoration: none;
     cursor: pointer;
 }
+
+img{margin-top: 5px;max-width: 100%;}
