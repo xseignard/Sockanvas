@@ -1,0 +1,15 @@
+* {
+  text-align: center;
+}
+
+h1 {
+  font-size: 3em;
+}
+
+p, a {
+  font-size: 2.5em;
+}
+
+a {
+  display: block;
+}
