@@ -1,215 +1,234 @@
 import * as THREE from 'three';
-import Stats from 'stats.js';
-import './index.css';
-import threeOrbitControls from './utils/OrbitControls';
 import TweenMax from 'gsap';
+import threeOrbitControls from './utils/OrbitControls';
+import Game from './game';
+import Table from './table';
+import Lights from './lights';
+import Particles from './particles';
+import './index.css';
 
 // attach orbit controls to THREE
 const OrbitControls = threeOrbitControls(THREE);
 
 // stats
-const stats = new Stats();
-document.body.appendChild(stats.domElement);
+// const stats = new Stats();
+// document.body.appendChild(stats.domElement);
 
 // scene, renderer, camera, mesh (geometry + material)
 const renderer = new THREE.WebGLRenderer({
-	antialias: true,
+    antialias: true,
 });
 renderer.setSize(window.innerWidth, window.innerHeight);
 // enbale the drawing of shadows
 renderer.shadowMap.enabled = true;
 document.body.appendChild(renderer.domElement);
 
+let scoreJ1 =  document.getElementById('j1').innerHTML;
+let scoreJ2 =  document.getElementById('j2').innerHTML;
+const modal = document.getElementById('myModal');
+const span = document.getElementsByClassName("close")[0];
+span.onclick = () => {
+    modal.style.display = "none";
+}
+
+
+
+
 //Scene
 const scene = new THREE.Scene();
-
-//Groupes
-const terrain = new THREE.Group();
-const verres = new THREE.Group();
-const balles = new THREE.Group();
-
-//Camera
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(-15, 30, 95);
-
-// controls
-const controls = new OrbitControls(camera, renderer.domElement);
-
-// axis helper
-const axisHelper = new THREE.AxisHelper(100);
-scene.add(axisHelper);
 
 //Lumiere ambiante
 const light = new THREE.AmbientLight(0x888888);
 scene.add(light);
 
-//Lumiere1
-const spotLight1 = new THREE.SpotLight(0x88aa88);
-spotLight1.angle = 30 * (Math.PI / 180);
-spotLight1.position.set(0, 40, 100);
-spotLight1.castShadow = true;
-spotLight1.distance = 200;
-spotLight1.decay = 2;
-spotLight1.penumbra = 0.9;
-scene.add(spotLight1);
-// const spotLightHelper1 = new THREE.SpotLightHelper(spotLight1);
-// scene.add(spotLightHelper1);
+//Camera
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
+camera.position.set(-15, 30, 95);
 
-//Lumiere2
-const spotLight2 = new THREE.SpotLight(0x88aa88);
-spotLight2.angle = 30 * (Math.PI / 180);
-spotLight2.position.set(0, 40, -100);
-spotLight2.castShadow = true;
-spotLight2.distance = 200;
-spotLight2.decay = 2;
-spotLight2.penumbra = 0.9;
-scene.add(spotLight2);
-// const spotLightHelper2 = new THREE.SpotLightHelper(spotLight2);
-// scene.add(spotLightHelper2);
+// controls
+const controls = new OrbitControls(camera, renderer.domElement);
 
+const lights = Lights();
+scene.add(lights.group);
 
-//Materiaux
-const materialTable = new THREE.MeshPhongMaterial({
-	emissive: 0x000000,
-	specular: 0x888888,
-	color: 0x3CB371,
-	side: THREE.DoubleSide,
-});
+const table = Table();
+scene.add(table.group);
 
-const materialVerreExt = new THREE.MeshPhongMaterial({
-	emissive: 0x000000,
-	specular: 0x888888,
-	color: 0xCF0A1D,
-	side: THREE.DoubleSide,
-});
+const game = Game();
+scene.add(game.group);
 
-const materialBalle = new THREE.MeshPhongMaterial({
-	emissive: 0x000000,
-	specular: 0x888888,
-	color: 0xFFFFFF,
-	side: THREE.DoubleSide,
-});
+const particlesJ1 = Particles();
+particlesJ1.group.position.set(-2.5, 7, game.z-2.5);
+scene.add(particlesJ1.group);
 
-const materialWhite = new THREE.MeshPhongMaterial({
-	emissive: 0x000000,
-	specular: 0x888888,
-	color: 0xFFFFFF,
-	side: THREE.DoubleSide,
-});
+const particlesJ2 = Particles();
+particlesJ2.group.position.set(-2.5, 7, -game.z-2.5);
+scene.add(particlesJ2.group);
 
-const materialEau = new THREE.MeshPhongMaterial({
-	emissive: 0x000000,
-	specular: 0x888888,
-	color: 0x87CEFA,
-	side: THREE.DoubleSide,
-});
+let direction= '-';
+let yDestination = 3;
+let win = false;
+let touchable=true;
+
+// const timer = () => {
+//     let seconds = 5;
+//     const interval = setInterval(() => {
+//             seconds --;
+//             if (seconds >=0) {
+//                 document.getElementById('rebours').innerHTML = seconds;
+//             }else {
+//                 console.log(game.balle.position.z);
+//                 direction == '-' ? direction = '+' : direction = '-';
+//                 game.balle.position.z <0 ? game.balle.position.z = game.z : game.balle.position.z = -game.z;
+//                 seconds=5;
+//                 timer();
+//             }
+//     }, 1000);
+// }
+
+const speed = game.z*2;
+const angle = 0;
 
 
-//Table
-const geometryTable = new THREE.PlaneGeometry(100, 180, 32, 32);
-const table = new THREE.Mesh(geometryTable, materialTable);
-table.rotation.x = Math.PI / 2;
-table.receiveShadow = true;
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
 
-const geometryBandes = new THREE.PlaneGeometry(2, 180, 32, 32);
-const bandes = new THREE.Mesh(geometryBandes, materialWhite);
-bandes.rotation.x = Math.PI / 2;
-bandes.position.y = 0.1;
-bandes.receiveShadow = true;
+const handleClick = e => {
 
-const geometryFilet = new THREE.PlaneGeometry(8, 100, 32, 32);
-const filet = new THREE.Mesh(geometryFilet, materialWhite);
-filet.rotation.z = - Math.PI / 2;
-filet.position.y = 4;
-filet.receiveShadow = true;
+    e.preventDefault();
+    mouse.x = e.clientX / window.innerWidth * 2 - 1;
+    mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(game.group.children);
 
-const geometryVerreExt = new THREE.CylinderGeometry(5, 3, 10, 8, 1, true, 0, 6.3);
-const verre1Ext = new THREE.Mesh(geometryVerreExt, materialVerreExt);
-verre1Ext.position.set(0,5,60);
-verre1Ext.receiveShadow = true;
-const verre2Ext = new THREE.Mesh(geometryVerreExt, materialVerreExt);
-verre2Ext.position.set(0,5,-60);
-verre2Ext.receiveShadow = true;
+    if (intersects.length > 0 && intersects[0].object.uuid === game.balle.uuid && touchable==true) {
 
-const geometryFontVerre = new THREE.CylinderGeometry(2.9, 2.9, 0.1, 8);
-const fontVerre1 = new THREE.Mesh(geometryFontVerre, materialWhite);
-fontVerre1.position.set(0,0.1,60);
-fontVerre1.receiveShadow = true;
-const fontVerre2 = new THREE.Mesh(geometryFontVerre, materialWhite);
-fontVerre2.position.set(0,0.1,-60);
-fontVerre2.receiveShadow = true;
+        // timer(true);
 
-const geometryVerreInt = new THREE.CylinderGeometry(4.9, 2.9, 10, 8, 1, true, 0, 6.3);
-const verre1Int = new THREE.Mesh(geometryVerreInt, materialWhite);
-verre1Int.position.set(0,5,60);
-verre1Int.receiveShadow = true;
-const verre2Int = new THREE.Mesh(geometryVerreInt, materialWhite);
-verre2Int.position.set(0,5,-60);
-verre2Int.receiveShadow = true;
+        if (angle == 0 && speed == game.z*2){
+            yDestination = 8;
+            win = true;
+        }
 
-const geometryContenuVerre = new THREE.CylinderGeometry(4, 4, 0.1, 8);
-geometryContenuVerre.vertices.forEach(v => {
-	if (Math.random() < 0.5) v.y += Math.random() * 2;
-});
-geometryContenuVerre.computeFaceNormals();
-geometryContenuVerre.computeVertexNormals();
-const contenuVerre1 = new THREE.Mesh(geometryContenuVerre, materialEau);
-contenuVerre1.position.set(0,7,60);
-contenuVerre1.receiveShadow = true;
-const contenuVerre2 = new THREE.Mesh(geometryContenuVerre, materialEau);
-contenuVerre2.position.set(0,7,-60);
-contenuVerre2.receiveShadow = true;
+        TweenMax.to(game.balle.position, 0.9, {
+            x: angle,
+            z: `${direction}=${speed}`,
+        });
 
-const geometryBalle = new THREE.SphereGeometry(3,32,32);
-const balle = new THREE.Mesh(geometryBalle, materialBalle);
-balle.position.set(0,20,60);
-balle.receiveShadow = true;
+        TweenMax.to(game.balle.position, 0.6, {
+            y: yDestination,
+            ease: Power2.easeIn,
+        }).delay(0.3);
 
-//Ajout au groupe
-terrain.add(table);
-terrain.add(filet);
-terrain.add(bandes);
-verres.add(verre1Ext);
-verres.add(verre2Ext);
-verres.add(verre1Int);
-verres.add(verre2Int);
-verres.add(fontVerre1);
-verres.add(fontVerre2);
-verres.add(contenuVerre1);
-verres.add(contenuVerre2);
-balles.add(balle);
+        touchable = false;
 
-//Ajout a la scene
-scene.add(terrain);
-scene.add(verres);
-scene.add(balles);
+        const timeout1 = setTimeout(() => {
+
+            if (win==true && game.balle.position.z < 0) {
+
+                modal.style.display = "block";
+                scoreJ1++;
+                document.getElementById('j1').innerHTML = scoreJ1/5;
+
+                // let i = 0;
+                // const interval = setInterval(() => {
+                //     if (i <= 1000) {
+                //         particlesJ2.particles[i].fart();
+                //         i++;
+                //     } else clearInterval(interval);
+                // }, 10);
+
+            }else if (win == true && game.balle.position.z >0) {
+
+                modal.style.display = "block";
+                scoreJ2++;
+                document.getElementById('j2').innerHTML = scoreJ2/5;
+
+                // let i = 0;
+                // const interval = setInterval(() => {
+                //     if (i <= 1000) {
+                //         particlesJ1.particles[i].fart();
+                //         i++;
+                //     } else clearInterval(interval);
+                // }, 10);
+
+            }
+
+        }, 800);
 
 
-function trajectoire(angle, speed){
-	TweenMax.to(balle.position, 0.9, {
-		x: angle,
-		z: `-=${speed}`,
-	});
-	TweenMax.to(balle.position, 0.6, {
-		y: '3',
-		ease: Power2.easeIn,
-	}).delay(0.3);
-}
 
-function descente(){
-	balle.position.y >= 1.5 ? balle.position.set(balle.position.x, balle.position.y-0.2, balle.position.z-0.2) : null ;
-}
+        const timeout2 = setTimeout(() => {
 
-let animation=true;
+            if (win==true) {
+                if (game.balle.position.z <0) {
+                    TweenMax.to(game.balle.position, 1.5, {
+                        x: 0,
+                        y: game.hauteurBalle,
+                        z: -game.z,
+                    });
+                    // TweenMax.to(camera.position, 2, {
+                    // 	x: '15',
+                    // 	y: '30',
+                    // 	z: `-95`,
+                    // });
+                    // game.balle.position.set(0,game.hauteurBalle,-game.z);
+                    direction='+';
+                }else {
+                    TweenMax.to(game.balle.position, 1.5, {
+                        x: 0,
+                        y: game.hauteurBalle,
+                        z: game.z,
+                    });
+                    // TweenMax.to(camera.position, 2, {
+                    // 	x: '-15',
+                    // 	y: '30',
+                    // 	z: `95`,
+                    // });
+                    // game.balle.position.set(0,game.hauteurBalle,game.z);
+                    direction='-';
+                }
+            }
+
+            touchable = true;
+
+        }, 2000);
+
+    }
+};
+addEventListener('click', handleClick);
+
+let nb = 50;
+let animation = true;
+let hsl = 0;
 const animate = timestamp => {
 
-	stats.begin();
-	if (animation===true) trajectoire(0,120);
-	animation=false;
+    if (hsl <=360) {
+        modal.style.backgroundColor = `hsl(${hsl},50%,80%)`;
+        span.style.color = `hsl(${hsl},50%,80%)`;
+        hsl+=0.5;
+    }else {
+        hsl = 0;
+    }
 
+    if (nb <= 0) {
+        game.geometryContenuVerre.vertices.forEach(v => {
+            if (Math.random() < 0.5) v.y = Math.random() * 2;
+        });
+        game.geometryContenuVerre.verticesNeedUpdate = true;
+        nb = 50;
+    }
+    nb --;
 
-	renderer.render(scene, camera);
-	stats.end();
-	requestAnimationFrame(animate);
+    if (animation==true) {
+        // timer();
+        animation = false
+    }
+
+    // stats.begin();
+
+    renderer.render(scene, camera);
+    // stats.end();
+    requestAnimationFrame(animate);
 };
 animate();
