@@ -44,7 +44,7 @@ io.on('connection', socket => {
     // On emet l'url du client
     socket.on('emitURL', (location) => {
         // Si le client est sur la page '/'
-        if(location !== '/waiting' && clients.length + 1 < 3) {
+        if (location !== '/waiting' && clients.length + 1 < 3) {
             socket.on('clientConnect', (client) => {
                 let DeviceCount = 0;
 

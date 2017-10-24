@@ -17,17 +17,14 @@ window.addEventListener("touchstart", handleStart, false);
 window.addEventListener("touchend", handleEnd, false);
 window.addEventListener("touchmove", handleMove, false);
 
-window.addEventListener("devicemotion", motion, false);
-window.addEventListener("deviceorientation", orientation, false);
-
-//Fonction appelé lors du touché de l'écran
+//Fonction appelée lors du touché de l'écran
 function handleStart(event) {
     startY = event.touches[0].pageY;
     startX = event.touches[0].pageX;
     startTime = new Date().getTime();
 }
 
-//Fonction appelé lors de la fin du touché de l'écran
+//Fonction appelée lors de la fin du touché de l'écran
 function handleEnd(event) {
     endTime = new Date().getTime();
     deltaTime = endTime - startTime;
@@ -43,7 +40,9 @@ function handleMove(event) {
     y = event.touches[0].pageY;
     deltaX = startX - x;
     deltaY = startY - y;
-    if(deltaY < 0) { deltaY = -deltaY; }
+    if (deltaY < 0) {
+        deltaY = -deltaY;
+    }
     angle = Math.sin(deltaX / deltaY) * 180 / Math.PI;
     angle = angle.toFixed(2);
     data.touchAngle = angle;

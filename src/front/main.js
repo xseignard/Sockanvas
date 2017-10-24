@@ -24,6 +24,9 @@ socket.on('displayClientInfo', (clientDebug) => {
     console.log(clientDebug);
 });
 
+/*
+* Redirect to the desired URL
+* */
 socket.on('redirect', (url) => {
-    window.location.href = window.location.origin+url;
+    window.location.href = window.location.origin + url;
 });
