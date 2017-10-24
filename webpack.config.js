@@ -9,10 +9,13 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 module.exports = {
-    entry: './src/front/main.js',
+    entry: {
+        bundle: './src/front/main.js',
+        device: './src/front/device.js'
+    },
     devtool: "eval-source-map",
     output: {
-        filename: 'bundle.js',
+        filename: '[name].js',
         path: path.resolve(__dirname, 'dist')
     },
     module: {

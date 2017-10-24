@@ -41,48 +41,58 @@ let currentclient = {};
 io.on('connection', socket => {
     let DesktopExist = false;
 
-    socket.on('clientConnect', (client) => {
-        let DeviceCount = 0;
+    // On emet l'url du client
+    socket.on('emitURL', (location) => {
+        // Si le client est sur la page '/'
+        if(location !== '/waiting' && clients.length + 1 < 3) {
+            socket.on('clientConnect', (client) => {
+                let DeviceCount = 0;
 
-        clients.forEach((e) => {
-            if (e.type === 'desktop')
-                DesktopExist = true;
-            if (e.type === 'device')
-                DeviceCount++;
-        });
-        if (client.type === 'desktop' && DesktopExist === false) {
-            socket.join('master');
-            currentclient = {
-                id: client.id,
-                type: client.type,
-                name: 'DesktopMaster',
-                rooms: getRoomsByClient(client.id)
-            };
-            clients.push(currentclient);
-            socket.emit('displayClientInfo', clients);
-        } else if (client.type === 'device' && DeviceCount < 2) {
-            socket.join('devices');
-            currentclient = {
-                id: client.id,
-                type: client.type,
-                name: 'Device' + DeviceCount,
-                rooms: getRoomsByClient(client.id)
-            };
-            clients.push(currentclient);
-            socket.emit('displayClientInfo', currentclient);
+                clients.forEach((e) => {
+                    if (e.type === 'desktop')
+                        DesktopExist = true;
+                    if (e.type === 'device')
+                        DeviceCount++;
+                });
+                if (client.type === 'desktop' && DesktopExist === false) {
+                    socket.join('master');
+                    currentclient = {
+                        id: client.id,
+                        type: client.type,
+                        name: 'DesktopMaster',
+                        rooms: getRoomsByClient(client.id)
+                    };
+                    clients.push(currentclient);
+                    socket.emit('displayClientInfo', clients);
+                } else if (client.type === 'device' && DeviceCount < 2) {
+                    socket.join('devices');
+                    currentclient = {
+                        id: client.id,
+                        type: client.type,
+                        name: 'Device' + DeviceCount,
+                        rooms: getRoomsByClient(client.id)
+                    };
+                    clients.push(currentclient);
+                    socket.emit('displayClientInfo', currentclient);
+                } else {
+                    // Redirection sur la page d'attente si le client ne peut pas jouer
+                    socket.emit('redirect', '/waiting')
+                }
+            });
         } else {
-            
+            // Toutes les 15 secondes on refresh
+            setTimeout(() => {
+                socket.emit('redirect', '/');
+            }, 15000)
         }
-    });
-
-    socket.on('disconnect', () => {
-        for (let i = 0; i < clients.length; i++) {
-            if (socket.id == clients[i].id) {
-                clients.splice(i, 1);
+        socket.on('disconnect', () => {
+            for (let i = 0; i < clients.length; i++) {
+                if (socket.id == clients[i].id) {
+                    clients.splice(i, 1);
+                }
             }
-        }
-    })
-
+        })
+    });
 });
 
 function getRoomsByClient(id) {

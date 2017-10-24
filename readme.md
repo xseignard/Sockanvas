@@ -13,10 +13,7 @@ Client : à partir de : **0.0.0.0:1338**
 
 ## Démarrage du serveur :
 
-``npm run build``
-
-ou
-``npm start``
+``node src/server/main.js``
 
 ## Deploiement :
 
