@@ -30,31 +30,31 @@ app.get('/', (req, res) => {
 });
 
 app.get('/waiting', (req, res) => {
-    res.render('waiting.html.twig', {
-        type: currentclient.type
-    });
+    const ua = req.headers['user-agent'];
+    let device = /mobile/i.test(ua);
+    res.render('waiting.html.twig', {device: device});
 });
 
 
 let clients = [];
-let currentclient = {};
 io.on('connection', socket => {
-    let DesktopExist = false;
+    let currentclient = {};
 
     // On emet l'url du client
     socket.on('emitURL', (location) => {
         // Si le client est sur la page '/'
-        if (location !== '/waiting' && clients.length + 1 < 3) {
+        if (location !== '/waiting') {
             socket.on('clientConnect', (client) => {
-                let DeviceCount = 0;
+                let deviceCount = 0;
+                let desktopCount = 0;
 
                 clients.forEach((e) => {
                     if (e.type === 'desktop')
-                        DesktopExist = true;
+                        desktopCount++;
                     if (e.type === 'device')
-                        DeviceCount++;
+                        deviceCount++;
                 });
-                if (client.type === 'desktop' && DesktopExist === false) {
+                if (client.type === 'desktop' && desktopCount === 0) {
                     socket.join('master');
                     currentclient = {
                         id: client.id,
@@ -64,12 +64,12 @@ io.on('connection', socket => {
                     };
                     clients.push(currentclient);
                     socket.emit('displayClientInfo', clients);
-                } else if (client.type === 'device' && DeviceCount < 2) {
+                } else if (client.type === 'device' && deviceCount < 2) {
                     socket.join('devices');
                     currentclient = {
                         id: client.id,
                         type: client.type,
-                        name: 'Device' + DeviceCount,
+                        name: 'Device' + deviceCount,
                         rooms: getRoomsByClient(client.id)
                     };
                     clients.push(currentclient);

@@ -5,6 +5,11 @@
         <h1>
             Vous êtes en attente
         </h1>
-        <i>Déjà trop de {{ type }} connectés</i>
+        <i>Déjà trop de {% if device == false %}
+                            Desktop
+                        {% else %}
+                            Device
+                        {% endif %}
+            connectés</i>
     </section>
 {% endblock %}
