@@ -1,11 +1,6 @@
 {% extends "base.html.twig" %}
 
 {% block section %}
-    {#<section id="deviceScreen">#}
-        {#<h1>#}
-            {#Scène mobile#}
-        {#</h1>#}
-    {#</section>#}
     <div>
         <h1>Touch events</h1>
         <p id="touchSpeed"></p>
@@ -23,5 +18,6 @@
         <p id="orientation-y"></p>
         <p id="orientation-z"></p>
     </div>
+    ID du socket : {{ socket }}
     <script src="device.js"></script>
 {% endblock %}

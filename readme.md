@@ -2,14 +2,11 @@
 
 https://hhochart29.github.io/sockanvas
 
-Server : **0.0.0.0:1337**
-
-Client : à partir de : **0.0.0.0:1338**
+Client: http://192.168.0.11:1337
 
 ## Install :
 
 ``npm install``
-
 
 ## Démarrage du serveur :
 
@@ -18,3 +15,7 @@ Client : à partir de : **0.0.0.0:1338**
 ## Deploiement :
 
 ``npm run deploy``
+
+## Développement :
+
+``npm start``

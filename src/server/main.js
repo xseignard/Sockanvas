@@ -18,6 +18,7 @@ app.set("twig options", {
     strict_variables: false
 });
 
+// Gestion du routing
 app.get('/', (req, res) => {
     const ua = req.headers['user-agent'];
     let device = /mobile/i.test(ua);
@@ -29,17 +30,17 @@ app.get('/', (req, res) => {
     }
 });
 
-app.get('/waiting', (req, res) => {
-    const ua = req.headers['user-agent'];
-    let device = /mobile/i.test(ua);
-    res.render('waiting.html.twig', {device: device});
-});
-
-
 let clients = [];
 io.on('connection', socket => {
-    let currentclient = {};
 
+
+    app.get('/waiting', (req, res) => {
+        const ua = req.headers['user-agent'];
+        let device = /mobile/i.test(ua);
+        res.render('waiting.html.twig', {device: device});
+    });
+
+    let currentclient = {};
     // On emet l'url du client
     socket.on('emitURL', (location) => {
         // Si le client est sur la page '/'
@@ -93,6 +94,26 @@ io.on('connection', socket => {
             }
         })
     });
+
+    // Gestion du touch du client device
+    socket.on('clientEmitData', (data) => {
+        for (let i = 0; i < clients.length; i++) {
+
+            console.log(socket.id + ' est censé etre égale a ' + clients[i].id);
+
+            /*
+            * Probleme = le socket du front.js n'est pas le même que celui du device.js donc id de socket différent
+            * Idée = Fusionner Main.js dans une fichier 'base' qui serait inclut dans le base.html.twig
+            * Base.html.twig inclus main.js -> réutilisation de l'objet socket dans device.js (donc même socket, même id)
+            * */
+            if (socket.id == clients[i].id) {
+                clients[i].touchAngle = data.touchAngle;
+                clients[i].touchSpeed = data.touchSpeed;
+            }
+        }
+        // console.log(clients);
+    });
+
 });
 
 function getRoomsByClient(id) {
