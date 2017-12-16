@@ -2,7 +2,7 @@ require('./styles/main.scss');
 
 import io from 'socket.io-client';
 
-const socket = io('http://192.168.0.11:1337'); //home
+const socket = io('http://172.16.61.66:1337'); //home
 // const socket = io('http://192.168.1.27:1337');
 
 socket.on('connect', (client) => {

@@ -12,10 +12,10 @@ let angle;
 
 let data = {};
 
-import io from 'socket.io-client';
+// import io from 'socket.io-client';
 
-const socket = io('http://192.168.0.11:1337');
-socket.on('connect', (client) => {
+// const socket = io('http://172.16.61.66:1337/');
+// socket.on('connect', (client) => {
 
 //On appel chaque évènement liés au touché de l'écran
     window.addEventListener("touchstart", handleStart, false);
@@ -60,4 +60,3 @@ socket.on('connect', (client) => {
         data.touchAngle = angle;
         document.getElementById("touchAngle").innerHTML = "Angle : " + data.touchAngle;
     }
-});
